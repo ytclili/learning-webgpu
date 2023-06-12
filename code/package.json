@@ -13,7 +13,9 @@
     "vite": "^4.3.9"
   },
   "devDependencies": {
+    "@types/three": "^0.152.1",
     "@webgpu/glslang": "0.0.15",
-    "@webgpu/types": "^0.1.32"
+    "@webgpu/types": "^0.1.32",
+    "three": "^0.153.0"
   }
 }
