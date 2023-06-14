@@ -141,6 +141,135 @@ export class App {
     this.renderPassEncoder.setPipeline(this.renderPipeline);
   }
 
+  public InitGPUBufferWithMultiBuffers(
+    vxArray: Float32Array,
+    colorArray: Float32Array,
+    idxArray: Uint32Array,
+    mxArray: Float32Array
+  ) {
+    let vertexBuffer = this._CreateGPUBuffer(vxArray, GPUBufferUsage.VERTEX);
+
+    this.renderPassEncoder.setVertexBuffer(0, vertexBuffer);
+
+    let colorBuffer = this._CreateGPUBuffer(colorArray, GPUBufferUsage.VERTEX);
+
+    this.renderPassEncoder.setVertexBuffer(1, colorBuffer, 0);
+
+    let indexBuffer = this._CreateGPUBuffer(idxArray, GPUBufferUsage.INDEX);
+
+    this.renderPassEncoder.setIndexBuffer(indexBuffer, "uint32");
+
+    let uniformBuffer = this._CreateGPUBuffer(mxArray, GPUBufferUsage.UNIFORM);
+
+    let uniformBindGroup = this.device.createBindGroup({
+      layout: this.uniformGroupLayout,
+
+      entries: [
+        {
+          binding: 0,
+
+          resource: { buffer: uniformBuffer },
+        },
+      ],
+    });
+
+    this.renderPassEncoder.setBindGroup(0, uniformBindGroup);
+  }
+
+  public InitPipelineWitMultiBuffers(vxCode: string, fxCode: string) {
+    this.uniformGroupLayout = this.device.createBindGroupLayout({
+      entries: [
+        {
+          binding: 0,
+
+          visibility: GPUShaderStage.VERTEX,
+
+          buffer: {
+            type: "uniform",
+          },
+        },
+      ],
+    });
+
+    let layout: GPUPipelineLayout = this.device.createPipelineLayout({
+      bindGroupLayouts: [this.uniformGroupLayout],
+    });
+
+    let vxModule: GPUShaderModule = this.device.createShaderModule({
+      code: vxCode,
+    });
+
+    let fxModule: GPUShaderModule = this.device.createShaderModule({
+      code: fxCode,
+    });
+
+    this.renderPipeline = this.device.createRenderPipeline({
+      layout: layout,
+
+      vertex: {
+        buffers: [
+          {
+            arrayStride: 4 * 3,
+
+            attributes: [
+              // position
+
+              {
+                shaderLocation: 0,
+
+                offset: 0,
+
+                format: "float32x3",
+              },
+            ],
+
+            stepMode: "vertex",
+          },
+
+          {
+            arrayStride: 4 * 4,
+
+            attributes: [
+              // color
+
+              {
+                shaderLocation: 1,
+
+                offset: 0,
+
+                format: "float32x4",
+              },
+            ],
+
+            stepMode: "instance",
+          },
+        ],
+
+        module: vxModule,
+
+        entryPoint: "main",
+      },
+
+      fragment: {
+        module: fxModule,
+
+        entryPoint: "main",
+
+        targets: [
+          {
+            format: this.format,
+          },
+        ],
+      },
+
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+
+    this.renderPassEncoder.setPipeline(this.renderPipeline);
+  }
+
   private _CreateGPUBuffer(typedArray: any, usage: GPUBufferUsageFlags) {
     let gpuBuffer = this.device.createBuffer({
       size: typedArray.byteLength,

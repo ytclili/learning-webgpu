@@ -4,7 +4,17 @@ import vxCode from "./shader/vertex.wgsl";
 import fxCode from "./shader/fragment.wgsl";
 
 const triangleVertex = new Float32Array([
+  // position         // color
+  0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, -1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+  -1.0, 0.0, 0.0, 0.0, 1.0, 1.0,
+]);
+
+const triangleVertexPositon = new Float32Array([
   0.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0,
+]);
+
+const triangleVertexColor = new Float32Array([
+  1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,
 ]);
 // 索引
 const triangleIndex = new Uint32Array([0, 1, 2]);
@@ -12,8 +22,16 @@ const triangleIndex = new Uint32Array([0, 1, 2]);
 const triangleMVMatrix = new Matrix4().makeTranslation(-1.5, 0.0, -7.0);
 
 const squareVertex = new Float32Array([
+  // position         // color
+  1.0, 1.0, 0.0, 0.5, 0.5, 1.0, 1.0, -1.0, 1.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0,
+  -1.0, 0.0, 0.5, 0.5, 1.0, 1.0, -1.0, -1.0, 0.0, 0.5, 0.5, 1.0, 1.0,
+]);
+
+const squareVertexPosition = new Float32Array([
   1.0, 1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, -1.0, 0.0,
 ]);
+
+const squareVertexColor = new Float32Array([0.5, 0.5, 1.0, 1.0]);
 
 const squareIndex = new Uint32Array([0, 1, 2, 1, 2, 3]);
 const squareMVMatrix = new Matrix4().makeTranslation(1.5, 0.0, -7.0);
@@ -40,12 +58,26 @@ const main = async () => {
 
   let app = new App();
   app.CreateCanvas(document.body);
+
   await app.InitWebGPU();
+
   app.InitRenderPass(backgroundColor);
+
   app.InitRenderPipeline(vxCode, fxCode);
+
   app.InitGPUBuffer(triangleVertex, triangleIndex, triangleUniformBufferView);
+
   app.Draw(triangleIndex.length);
-  app.InitGPUBuffer(squareVertex, squareIndex, squareUniformBufferView);
+
+  // app.InitGPUBuffer(squareVertex, squareIndex, squareUniformBufferView);
+  app.InitPipelineWitMultiBuffers(vxCode, fxCode);
+
+  app.InitGPUBufferWithMultiBuffers(
+    squareVertexPosition,
+    squareVertexColor,
+    squareIndex,
+    squareUniformBufferView
+  );
 
   app.Draw(squareIndex.length);
 
