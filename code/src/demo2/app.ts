@@ -121,17 +121,17 @@ export class App {
         entryPoint: "main",
       },
 
-      fragment: {
-        module: fxModule,
+      // fragment: {
+      //   module: fxModule,
 
-        entryPoint: "main",
+      //   entryPoint: "main",
 
-        targets: [
-          {
-            format: this.format,
-          },
-        ],
-      },
+      //   targets: [
+      //     {
+      //       format: this.format,
+      //     },
+      //   ],
+      // },
 
       primitive: {
         topology: "triangle-list",
@@ -231,7 +231,6 @@ export class App {
 
             attributes: [
               // color
-
               {
                 shaderLocation: 1,
 

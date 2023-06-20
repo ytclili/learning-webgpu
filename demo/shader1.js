@@ -17,3 +17,8 @@ fn  main() -> @location(0) vec4<f32> {
 `
 
 export {vertex,fragment}
+
+
+
+
+// 顶点 -> 顶点着色器  -> 图元装配 => 光栅化 => > 片元着色器 => 深度测试 => 像素写入
