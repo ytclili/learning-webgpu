@@ -10,7 +10,7 @@
 <body>
     <canvas id="webgpu" width="600" height="600" style="background-color: black;"></canvas>
     <script type="module">
-        import {vertex,fragment} from './shader1.js'
+        import {vertex,fragment} from './shader2.js'
         const adapter = await navigator.gpu.requestAdapter();
         const device = await adapter.requestDevice();
         const canvas = document.getElementById("webgpu");
@@ -21,18 +21,59 @@
             format: format
         })
         const veterxArray = new Float32Array([
-            0.5, 0.0, 0.0 ,
+            1, 0.0, 0.0 ,
+            0.0, 1.0, 0.0 ,
             0.0, 0.0, 0.0 ,
-            0.5, 0.5, 0.0 ,
-            0.5,0.5,0.0,
-            0.0,0.5,0.0,
-            0.0,0.0,0.0
         ])
         const veterxBuffer = device.createBuffer({
             size: veterxArray.byteLength,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
         })
         device.queue.writeBuffer(veterxBuffer, 0, veterxArray)
+         
+        // // 创建缩放矩阵 
+        const mate4ArrayS =new Float32Array([
+               0.5,0.0,0.0,0.0,
+               0.0,0.5,0.0,0.0,
+               0.0,0.0,1.0,0.0,
+               0.0,0.0,0.0,1.0
+        ])
+        const mate4BufferS = device.createBuffer({
+            size: mate4ArrayS.byteLength,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        })
+        device.queue.writeBuffer(mate4BufferS, 0, mate4ArrayS)
+
+
+        // 创建平移矩阵 
+        const mate4ArrayT =new Float32Array([
+               1.0,0.0,0.0,0.0,
+               0.0,1.0,0.0,0.0,
+               0.0,0.0,1.0,0.0,
+               0.5,0.5,0.0,1.0
+        ])
+        const mate4BufferT = device.createBuffer({
+            size: mate4ArrayT.byteLength,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        })
+        device.queue.writeBuffer(mate4BufferT, 0, mate4ArrayT)
+
+        const mate4F = new Float32Array([0.5])
+        const mate4BufferF = device.createBuffer({
+            size: mate4F.byteLength,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        })
+        device.queue.writeBuffer(mate4BufferF, 0, mate4F)
+
+        // 创建颜色变量
+        const colorVec3 = new Float32Array([1.0,0.0,0.0])
+        const colorBuffer = device.createBuffer({
+            size: colorVec3.byteLength,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        })
+        device.queue.writeBuffer(colorBuffer, 0, colorVec3)
+       
+
         console.log(vertex)
         const pipeline  = device.createRenderPipeline({
             layout: 'auto',
@@ -63,6 +104,36 @@
             }
         })
 
+        const bindGroup = device.createBindGroup({
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+                {
+                    binding: 0,
+                    resource: {
+                        buffer: mate4BufferS
+                    }
+                },
+                {
+                    binding: 1,
+                    resource: {
+                        buffer: mate4BufferT
+                    }
+                },
+                {
+                    binding: 2,
+                    resource: {
+                        buffer: mate4BufferF
+                    }
+                },
+                {
+                    binding: 3,
+                    resource: {
+                        buffer: colorBuffer
+                    }
+                }
+            ]
+        })
+        
         const commandEncoder = device.createCommandEncoder();
         const renderPass = commandEncoder.beginRenderPass({
             colorAttachments: [{
@@ -76,7 +147,8 @@
         })
         renderPass.setPipeline(pipeline)
         renderPass.setVertexBuffer(0, veterxBuffer)
-        renderPass.draw(6)
+        renderPass.setBindGroup(0, bindGroup)
+        renderPass.draw(3)
         renderPass.end()
         const commandBuffer = commandEncoder.finish();
         device.queue.submit([commandBuffer]);

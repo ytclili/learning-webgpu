@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-
 <body>
     <canvas id="webgpu" width="600" height="600" style="background-color: black;"></canvas>
     <script type="module">
-        import {vertex,fragment} from './shader1.js'
+        import {vertex,fragment} from './shader4.js'
         const adapter = await navigator.gpu.requestAdapter();
         const device = await adapter.requestDevice();
         const canvas = document.getElementById("webgpu");
@@ -21,12 +19,9 @@
             format: format
         })
         const veterxArray = new Float32Array([
-            0.5, 0.0, 0.0 ,
-            0.0, 0.0, 0.0 ,
-            0.5, 0.5, 0.0 ,
-            0.5,0.5,0.0,
-            0.0,0.5,0.0,
-            0.0,0.0,0.0
+            1.0, 0.0, 0.0 ,
+            0.0, 1.0, 0.0 ,
+            0.0, 0.0, 1.0 
         ])
         const veterxBuffer = device.createBuffer({
             size: veterxArray.byteLength,
@@ -71,17 +66,15 @@
                 storeOp: "store",
                 loadOp: "clear",
                 clearValue: {r: 0, g: 0, b: 0, a: 1}
-
             }]
         })
         renderPass.setPipeline(pipeline)
         renderPass.setVertexBuffer(0, veterxBuffer)
-        renderPass.draw(6)
+        renderPass.draw(3)
         renderPass.end()
         const commandBuffer = commandEncoder.finish();
         device.queue.submit([commandBuffer]);
 
     </script>
 </body>
-
 </html>
