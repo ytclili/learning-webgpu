@@ -58,17 +58,13 @@
         const mixMat4 = glMatrix.mat4.create();
         glMatrix.mat4.translate(mixMat4,mixMat4,[0.5,0.5,0.0])
         glMatrix.mat4.scale(mixMat4,mixMat4,[0.5,0.5,1.0])
+        glMatrix.mat4.rotateZ(mixMat4,mixMat4,Math.PI /  6)
         const mixMat4Buffer = device.createBuffer({
             size: mixMat4.byteLength,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
         })
-        device.queue.writeBuffer(mixMat4Buffer, 0, mixMat4)
 
-        const animateMat4 = glMatrix.mat4.create();
-        const animateMat4Buffer = device.createBuffer({
-            size: animateMat4.byteLength,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-        })
+    
 
 
         const pipeline  = device.createRenderPipeline({
@@ -121,15 +117,24 @@
                     resource: {
                         buffer: mixMat4Buffer
                     }
-                }
+                },
+            
             ]
         })
 
-        let angle 
+        let angle = 0
         const renderer = ()=>{
-            angle+=0.1
-            glMatrix.mat4.rotateZ(mixMat4,mixMat4,angle)
-            device.queue.writeBuffer(mixMat4Buffer, 0, mixMat4)
+            angle+=0.05
+            const modelMatrix = glMatrix.mat4.create();
+            console.log(angle,'===')
+            // glMatrix.mat4.rotateZ(modelMatrix,modelMatrix,angle)
+            // rotate -> translate -> matrix    
+             glMatrix.mat4.translate(modelMatrix,modelMatrix,[0,0,0.5])
+             glMatrix.mat4.rotateY(modelMatrix,modelMatrix,angle)
+
+
+            device.queue.writeBuffer(mixMat4Buffer, 0, modelMatrix)
+
 
             const commandEncoder = device.createCommandEncoder();
             const renderPass = commandEncoder.beginRenderPass({
@@ -149,7 +154,7 @@
         renderPass.end()
         const commandBuffer = commandEncoder.finish();
         device.queue.submit([commandBuffer]);
-        // requestAnimationFrame(renderer)
+        requestAnimationFrame(renderer)
         }
         renderer()
 
