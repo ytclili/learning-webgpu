@@ -14,7 +14,7 @@
         const canvas = document.getElementById("webgpu");
         const devicePixelRatio = window.devicePixelRatio || 1;
         canvas.width = canvas.clientWidth * devicePixelRatio;
-  canvas.height = canvas.clientHeight * devicePixelRatio;
+        canvas.height = canvas.clientHeight * devicePixelRatio;
 
 
 
@@ -77,10 +77,8 @@
         let renderTarget= undefined;
         let renderTargetView = undefined;
         function animate(){
-     
-
-            const currentWidth = canvas.clientWidth * devicePixelRatio;
-    const currentHeight = canvas.clientHeight * devicePixelRatio;
+            const currentWidth = window.innerWidth * devicePixelRatio;
+          const currentHeight = window.innerHeight * devicePixelRatio;
         if(currentWidth && currentHeight && (currentWidth !== canvas.width || currentHeight !== canvas.height) ){
              if(renderTarget !== undefined){
                 renderTarget.destroy();
@@ -112,7 +110,7 @@
         })
         renderPass.setPipeline(pipeline)
         // renderPass.setVertexBuffer(0, veterxBuffer)
-        renderPass.draw(6)
+        renderPass.draw(3)
         renderPass.end()
         const commandBuffer = commandEncoder.finish();
         device.queue.submit([commandBuffer]);
